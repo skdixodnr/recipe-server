@@ -1,0 +1,6 @@
+
+
+
+
+class RecipeListResource(Resource) :
+    pass
