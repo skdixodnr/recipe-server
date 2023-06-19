@@ -9,6 +9,28 @@ from email_validator import validate_email, EmailNotValidError
 
 from utils import check_password, hash_password
 
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required
+
+import datetime
+
+
+# 로그아웃
+
+## 로그아웃된 토큰을 저장할 set 을 만든다.
+jwt_blocklist = set()
+
+class UserLogoutResource(Resource) :
+
+    @jwt_required()
+    def delete(self):
+
+        jti = get_jwt()['jti']
+        print(jti)
+        jwt_blocklist.add(jti)
+
+        return {'result' : 'success'}
+
+### 회원가입
 
 class UserRegisterResource(Resource) :
     
@@ -86,7 +108,12 @@ class UserRegisterResource(Resource) :
             print(e)
             return {'result' : 'fail', 'error' : str(e)}, 500
         
-        return {'result' : 'success', 'user_id' : user_id} # 200은 생략
+
+        # create_access_token(user_id, expires_delta=datetime.timedelta(days=10))
+        access_token = create_access_token(user_id)
+
+        
+        return {'result' : 'success', 'access_token': access_token} # 200은 생략
 
 ### 로그인 관련 개발
 
@@ -131,6 +158,22 @@ class UserLoginResource(Resource) :
 
         # 4. 클라이언트에게 데이터를 보내준다.
 
-        return {'result' : 'success', 'user_id' : result_list[0]['id']}
+        access_token = create_access_token(result_list[0]['id'])
+
+        return {'result' : 'success', 'access_token':access_token}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
